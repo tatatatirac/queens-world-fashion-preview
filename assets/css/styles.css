@@ -1,7 +1,7 @@
 /* ============================================================
    Queen's World Fashion — theme system
-   Day  = quiet luxury (ivory / warm beige / gold)
-   Night = editorial dark (espresso / ivory text / bright gold)
+   Day  = white / cream / blush / gold / near-black plum
+   Night = near-black plum / soft pink / champagne gold
    All colors flow through CSS variables; switching themes only
    swaps variable values on html[data-theme="night"].
    ============================================================ */
@@ -10,29 +10,30 @@
   color-scheme: light;
 
   /* palette: day */
-  --gold: #c7a25a;
-  --gold-deep: #a9833c;
-  --ink: #201c18;
+  --gold: #c8a34f;
+  --gold-deep: #806016;
+  --ink: #201426;
   --on-ink: #ffffff;
-  --muted: #70655d;
-  --line: #e7dfd4;
-  --beige: #f5f1eb;
-  --beige-deep: #ece4d8;
+  --muted: #706276;
+  --line: #eadde6;
+  --beige: #fff9ef;
+  --beige-deep: #f5e5ed;
+  --pink: #f4d8e5;
 
   --surface: rgba(255, 255, 255, 0.82);
-  --surface-strong: rgba(255, 253, 250, 0.96);
-  --card-edge: rgba(255, 255, 255, 0.6);
-  --header-bg: rgba(255, 252, 248, 0.92);
-  --menu-bg: rgba(255, 252, 248, 0.98);
-  --footer-bg: rgba(255, 253, 249, 0.72);
-  --overlay: rgba(28, 24, 20, 0.32);
-  --overlay-strong: rgba(28, 24, 20, 0.45);
+  --surface-strong: rgba(255, 253, 254, 0.97);
+  --card-edge: rgba(234, 221, 230, 0.8);
+  --header-bg: rgba(255, 250, 252, 0.94);
+  --menu-bg: rgba(255, 250, 252, 0.98);
+  --footer-bg: rgba(250, 235, 243, 0.8);
+  --overlay: rgba(32, 20, 38, 0.32);
+  --overlay-strong: rgba(32, 20, 38, 0.45);
 
-  --badge-bg: rgba(255, 248, 235, 0.88);
-  --badge-border: rgba(199, 162, 90, 0.32);
-  --chip-bg: rgba(244, 236, 223, 0.76);
-  --table-head-bg: rgba(250, 245, 238, 0.94);
-  --empty-bg: rgba(255, 249, 240, 0.84);
+  --badge-bg: rgba(255, 249, 235, 0.94);
+  --badge-border: rgba(200, 163, 79, 0.42);
+  --chip-bg: rgba(244, 216, 229, 0.55);
+  --table-head-bg: rgba(250, 237, 244, 0.94);
+  --empty-bg: rgba(255, 246, 251, 0.88);
 
   --success: #58a179;
   --success-bg: rgba(88, 161, 121, 0.14);
@@ -40,45 +41,46 @@
   --danger: #a04d4d;
   --warning: #d5b16b;
 
-  --shadow: 0 18px 45px rgba(38, 31, 24, 0.08);
-  --shadow-soft: 0 10px 28px rgba(89, 71, 36, 0.16);
-  --btn-shadow: 0 16px 35px rgba(32, 28, 24, 0.12);
-  --focus-ring: rgba(199, 162, 90, 0.16);
+  --shadow: 0 18px 45px rgba(40, 22, 48, 0.07);
+  --shadow-soft: 0 10px 28px rgba(58, 29, 65, 0.1);
+  --btn-shadow: 0 16px 35px rgba(32, 20, 38, 0.16);
+  --focus-ring: rgba(200, 163, 79, 0.24);
 
-  --frame-bg: #ece4d8;
+  --frame-bg: #f5e5ed;
   --frame-shine: rgba(255, 255, 255, 0.65);
 
   --body-gradient:
-    radial-gradient(circle at top, rgba(244, 236, 223, 0.6), transparent 28%),
-    linear-gradient(180deg, #fffdfb 0%, #fcfaf7 24%, #f7f1ea 100%);
+    radial-gradient(ellipse at 88% 12%, rgba(244, 216, 229, 0.44), transparent 45%),
+    linear-gradient(180deg, #ffffff 0%, #fffaf1 48%, #fbedf4 100%);
 }
 
 html[data-theme="night"] {
   color-scheme: dark;
 
-  --gold: #d5b26b;
-  --gold-deep: #d9bd7f;
-  --ink: #f1e9df;
-  --on-ink: #191410;
-  --muted: #b0a294;
-  --line: #352c24;
-  --beige: #241d17;
-  --beige-deep: #352c24;
+  --gold: #dfbd72;
+  --gold-deep: #e8c987;
+  --ink: #fcf6fa;
+  --on-ink: #1b1022;
+  --muted: #c6b7cb;
+  --line: #403047;
+  --beige: #211729;
+  --beige-deep: #302039;
+  --pink: #dca7c6;
 
-  --surface: rgba(40, 33, 27, 0.82);
-  --surface-strong: rgba(26, 21, 17, 0.96);
-  --card-edge: rgba(255, 255, 255, 0.08);
-  --header-bg: rgba(21, 17, 14, 0.9);
-  --menu-bg: rgba(21, 17, 14, 0.98);
-  --footer-bg: rgba(21, 17, 14, 0.75);
+  --surface: rgba(37, 25, 44, 0.88);
+  --surface-strong: rgba(29, 19, 36, 0.97);
+  --card-edge: rgba(220, 167, 198, 0.16);
+  --header-bg: rgba(22, 14, 29, 0.94);
+  --menu-bg: rgba(22, 14, 29, 0.98);
+  --footer-bg: rgba(29, 18, 36, 0.86);
   --overlay: rgba(0, 0, 0, 0.5);
   --overlay-strong: rgba(0, 0, 0, 0.62);
 
-  --badge-bg: rgba(213, 178, 107, 0.12);
-  --badge-border: rgba(213, 178, 107, 0.35);
-  --chip-bg: rgba(255, 255, 255, 0.07);
-  --table-head-bg: rgba(255, 255, 255, 0.04);
-  --empty-bg: rgba(255, 255, 255, 0.03);
+  --badge-bg: rgba(223, 189, 114, 0.1);
+  --badge-border: rgba(223, 189, 114, 0.38);
+  --chip-bg: rgba(220, 167, 198, 0.12);
+  --table-head-bg: rgba(220, 167, 198, 0.08);
+  --empty-bg: rgba(220, 167, 198, 0.05);
 
   --success: #7fc39c;
   --success-bg: rgba(127, 195, 156, 0.12);
@@ -89,14 +91,14 @@ html[data-theme="night"] {
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
   --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.4);
   --btn-shadow: 0 16px 35px rgba(0, 0, 0, 0.35);
-  --focus-ring: rgba(213, 178, 107, 0.18);
+  --focus-ring: rgba(223, 189, 114, 0.24);
 
-  --frame-bg: #241d17;
+  --frame-bg: #302039;
   --frame-shine: rgba(255, 255, 255, 0.05);
 
   --body-gradient:
-    radial-gradient(circle at top, rgba(126, 94, 42, 0.14), transparent 30%),
-    linear-gradient(180deg, #17120e 0%, #1b1611 30%, #14100c 100%);
+    radial-gradient(ellipse at 88% 12%, rgba(113, 57, 100, 0.18), transparent 45%),
+    linear-gradient(180deg, #140e19 0%, #1d1225 48%, #160e1c 100%);
 }
 
 html {
@@ -169,6 +171,15 @@ body {
   padding: 0.55rem 0.9rem;
   box-shadow: var(--shadow-soft);
   transition: border-color 300ms ease, box-shadow 300ms ease;
+}
+
+html[data-theme="night"] .brand-wordmark,
+html[data-theme="night"] .brand-icon {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  mix-blend-mode: screen;
+  filter: invert(1) hue-rotate(180deg) brightness(1.6);
 }
 
 .nav-link {
@@ -391,7 +402,7 @@ html[data-theme="night"] .icon-moon {
 }
 
 .glass-divider {
-  border-top: 1px solid rgba(199, 162, 90, 0.18);
+  border-top: 1px solid var(--badge-border);
 }
 
 /* ---------- image frames with shimmer while loading ---------- */
@@ -427,7 +438,7 @@ html[data-theme="night"] .icon-moon {
 .product-card:hover,
 .model-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 24px 55px rgba(38, 31, 24, 0.14);
+  box-shadow: 0 24px 55px rgba(40, 22, 48, 0.14);
 }
 
 .product-card img,

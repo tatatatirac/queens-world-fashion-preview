@@ -311,7 +311,7 @@
   function applyTheme(theme) {
     const next = theme === "night" ? "night" : "day";
     document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem(STORAGE.theme, next);
+    try { localStorage.setItem(STORAGE.theme, next); } catch (error) { /* Keep the toggle usable when storage is unavailable. */ }
   }
 
   function toggleTheme() {
@@ -320,9 +320,9 @@
   }
 
   function initTheme() {
-    const stored = localStorage.getItem(STORAGE.theme);
-    const prefersNight = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    document.documentElement.setAttribute("data-theme", stored || (prefersNight ? "night" : "day"));
+    let stored;
+    try { stored = localStorage.getItem(STORAGE.theme); } catch (error) { /* Default to day without storage. */ }
+    document.documentElement.setAttribute("data-theme", stored === "night" ? "night" : "day");
   }
 
   function toggleMobileNav() {
@@ -698,7 +698,7 @@
     const panels = document.createElement("div");
     panels.innerHTML = `
       <div data-cart-overlay class="overlay fixed inset-0 z-40 bg-[color:var(--overlay)]"></div>
-      <aside data-cart-drawer class="cart-drawer fixed right-4 top-4 z-50 w-[min(92vw,26rem)] rounded-[2rem] border border-[color:var(--card-edge)] bg-[color:var(--surface-strong)] p-5 shadow-[0_24px_60px_rgba(36,31,24,0.18)]">
+      <aside data-cart-drawer class="cart-drawer fixed right-4 top-4 z-50 w-[min(92vw,26rem)] rounded-[2rem] border border-[color:var(--card-edge)] bg-[color:var(--surface-strong)] p-5 shadow-[0_24px_60px_rgba(32,20,38,0.18)]">
         <div class="mb-4 flex items-start justify-between gap-4">
           <div>
             <p class="mini-label">Korpa</p>
