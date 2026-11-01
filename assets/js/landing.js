@@ -59,7 +59,7 @@
         <div class="atelier-footer-content">
           <div class="atelier-footer-left">
             <p>Pažljivo birani ručno rađeni modeli za svakodnevnu eleganciju.</p>
-            <strong class="font-serif">Izradjeno u nas Zemunu</strong>
+            <strong class="font-serif">Izradjujemo za vas u Zemunu</strong>
           </div>
           <div class="atelier-footer-right">
             <p>Sve modele možete videti i na Instagramu</p>
