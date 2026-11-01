@@ -179,7 +179,7 @@ html[data-theme="night"] .brand-icon {
   border-color: transparent;
   box-shadow: none;
   mix-blend-mode: screen;
-  filter: invert(1) hue-rotate(180deg) brightness(1.6);
+  filter: invert(1) hue-rotate(180deg) brightness(1.6) contrast(1.12);
 }
 
 .nav-link {

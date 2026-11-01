@@ -46,7 +46,7 @@ html[data-theme="night"] .atelier-footer { --atelier-wash: 24,15,31; }
 html[data-theme="night"] .landing-logo-poster,
 html[data-theme="night"] .landing-logo-video,
 html[data-theme="night"] .landing-logo-gif,
-html[data-theme="night"] .atelier-footer-logo { mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(1.6); }
+html[data-theme="night"] .atelier-footer-logo { mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(1.6) contrast(1.12); }
 @media (max-width: 1023px) {
   .landing-hero { grid-template-columns: 1fr; gap: 2rem; }
   .landing-story .section-title { max-width: 100%; }
