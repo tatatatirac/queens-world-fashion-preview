@@ -1,0 +1,76 @@
+/* Landing-only layout; the shop and admin retain their existing styles. */
+.landing-header { padding: 0.4rem 1rem 0; }
+.landing-brand-row { position: relative; width: fit-content; margin: 0 auto; }
+.landing-brand { position: relative; display: block; width: 250px; height: 220px; overflow: hidden; }
+.landing-logo-poster, .landing-logo-video, .landing-logo-gif { position: absolute; width: 250px; height: 250px; inset: -15px 0 auto; object-fit: contain; }
+.landing-logo-poster { mix-blend-mode: multiply; }
+.landing-logo-video, .landing-logo-gif { opacity: 0; mix-blend-mode: multiply; }
+.landing-logo-video.is-playing, .landing-logo-gif.is-playing { opacity: 1; }
+.landing-logo-gif[hidden] { display: none; }
+.landing-brand:has(.is-playing) .landing-logo-poster { visibility: hidden; }
+.logo-motion-toggle { position: absolute; bottom: 0.75rem; right: -0.5rem; width: 1.8rem; height: 1.8rem; border-radius: 50%; border: 1px solid var(--line); color: var(--muted); background: var(--surface); font-size: 0.75rem; }
+.logo-motion-toggle[hidden] { display: none; }
+.landing-nav-row { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1.9rem; width: fit-content; margin: 0 auto; padding: 0.85rem 1.5rem; background: var(--header-bg); }
+.landing-nav { display: flex; align-items: center; gap: 2rem; }
+.landing-instagram { color: var(--muted); font-size: 0.95rem; }
+.landing-controls { display: flex; align-items: center; gap: 0.8rem; }
+.landing-login { border: 1px solid var(--line); border-radius: 99px; padding: 0.7rem 1.6rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; background: var(--surface); }
+.landing-cart { position: relative; }
+.landing-cart-count { position: absolute; right: -4px; top: -4px; min-width: 20px; height: 20px; border-radius: 99px; background: var(--ink); color: var(--on-ink); font-size: 11px; display: grid; place-items: center; }
+.landing-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2rem; align-items: stretch; }
+.landing-hero > * { min-width: 0; }
+.landing-story { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.landing-story .section-title { line-height: 1.12; max-width: 10em; font-size: clamp(2.3rem, 3.7vw, 3.5rem); }
+.landing-story .section-subtitle { font-size: 1rem; line-height: 1.85; }
+.landing-story-actions { width: 100%; justify-content: center; }
+.landing-hero .hero-marquee { align-self: center; mask-image: linear-gradient(90deg, black 0, black 94%, transparent 100%); }
+.landing-hero .hero-card { width: 350px; box-shadow: none; }
+.landing-hero .hero-card img { height: 350px; object-position: center; }
+.landing-hero .hero-card h3 { font-size: 1.65rem; line-height: 1.2; }
+.landing-hero .hero-card .p-4 { min-height: 150px; padding: 1.3rem; }
+.landing-hero .hero-track { animation: landing-marquee 38s linear infinite; animation-play-state: paused; }
+.landing-hero .hero-track.is-running { animation-play-state: running; }
+@keyframes landing-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 0.5rem)); } }
+.atelier-footer { position: relative; isolation: isolate; overflow: hidden; min-height: 380px; margin-top: 6rem; color: #251d15; }
+.atelier-footer-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 48%; z-index: -3; }
+.atelier-footer-veil { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,248,237,.94), rgba(255,248,237,.57) 48%, rgba(255,248,237,.94)); z-index: -2; }
+.atelier-footer-logo { position: absolute; width: 390px; height: 390px; object-fit: contain; left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: .35; mix-blend-mode: multiply; pointer-events: none; z-index: -1; }
+.atelier-footer-content { position: relative; max-width: 1280px; margin: auto; min-height: 380px; padding: 5rem 2rem; display: flex; justify-content: space-between; align-items: center; gap: 5rem; }
+.atelier-footer-left, .atelier-footer-right { width: 32%; max-width: 360px; font-size: 1rem; line-height: 1.85; }
+.atelier-footer-right { text-align: right; }
+.atelier-footer-content strong { display: block; font-size: 1.65rem; line-height: 1.3; margin-top: 1rem; font-weight: 600; }
+.atelier-footer-right a { display: inline-block; font-weight: 600; margin-top: .8rem; text-decoration: underline; text-underline-offset: 5px; }
+.atelier-footer-copyright { position: relative; margin: 0; padding: 1.1rem 1rem; border-top: 1px solid rgba(37,29,21,.15); background: rgba(255,248,237,.8); text-align: center; font-size: .8rem; line-height: 1.6; letter-spacing: .02em; }
+html[data-theme="night"] .landing-brand { border-radius: 1.5rem; background: #fff; }
+html[data-theme="night"] .landing-logo-poster, html[data-theme="night"] .landing-logo-video, html[data-theme="night"] .landing-logo-gif { mix-blend-mode: normal; }
+@media (max-width: 1023px) {
+  .landing-hero { grid-template-columns: 1fr; gap: 2rem; }
+  .landing-story .section-title { max-width: 100%; }
+  .landing-story .section-subtitle { max-width: 100%; }
+  .atelier-footer-content { gap: 3rem; }
+  .atelier-footer-left, .atelier-footer-right { width: 42%; }
+  .atelier-footer-logo { width: 320px; }
+}
+@media (max-width: 600px) {
+  .landing-header { padding-inline: .75rem; }
+  .landing-brand { width: 210px; height: 180px; }
+  .landing-logo-poster, .landing-logo-video, .landing-logo-gif { width: 210px; height: 210px; }
+  .landing-nav-row { width: 100%; gap: .85rem 1rem; padding: .8rem .3rem; }
+  .landing-nav { gap: 1.5rem; }
+  .landing-nav .nav-link { font-size: .7rem; letter-spacing: .16em; }
+  .landing-instagram { font-size: .8rem; }
+  .landing-controls { gap: 1rem; }
+  .landing-login { padding: .6rem 1.4rem; }
+  .landing-story { padding: 1.6rem; }
+  .landing-story .section-title { font-size: 2.5rem; }
+  .landing-hero .hero-card { width: 290px; }
+  .landing-hero .hero-card img { height: 290px; }
+  .atelier-footer { margin-top: 4rem; }
+  .atelier-footer-content { min-height: 510px; padding: 3rem 1.5rem; flex-direction: column; gap: 7rem; align-items: stretch; }
+  .atelier-footer-left, .atelier-footer-right { width: 100%; max-width: none; }
+  .atelier-footer-veil { background: rgba(255,248,237,.85); }
+  .atelier-footer-logo { width: 270px; height: 270px; opacity: .25; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero .hero-track:not(.is-running) { animation-play-state: paused; }
+}

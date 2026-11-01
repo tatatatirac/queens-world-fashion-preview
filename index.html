@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("qw_preview_theme");
+        var theme = stored || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "day");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "day");
+      }
+    })();
+  </script>
+  <meta name="description" content="Ručno izrađeni modeli iz naše radionice u Zemunu. Biramo materijale, krojimo i šijemo sa pažnjom, uz dogovor o prilagođavanju vašim merama.">
+  <title>Queen's World Fashion | Početna</title>
+  <meta property="og:title" content="Queen's World Fashion | Početna">
+  <meta property="og:description" content="Iz naših ruku. Po vašoj meri. Otkrijte ručno izrađene modele iz Zemuna.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="images/brand-crown.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/landing.css?v=20261101-2">
+  <meta name="robots" content="noindex, nofollow">
+</head>
+<body data-page="home" class="page-shell">
+  <aside data-preview-notice style="padding:10px 16px;text-align:center;background:#f8f1e3;color:#51422e;border-bottom:1px solid #e8dcc6;font-size:13px;line-height:1.5">Ovo je javni pregled dizajna. Prijava i poručivanje nisu dostupni.</aside>
+  <div data-site-header></div>
+  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div data-page-root class="space-y-16"></div>
+  </main>
+  <div data-site-footer></div>
+
+  <script src="assets/js/instagram-seed.js"></script>
+  <script src="assets/js/content.js?v=20261101"></script>
+  <script src="assets/js/landing.js?v=20261101-3"></script>
+  <script src="assets/js/shared.js?v=20261101"></script>
+  <script src="assets/js/app.js?v=20261101-2"></script>
+</body>
+</html>
