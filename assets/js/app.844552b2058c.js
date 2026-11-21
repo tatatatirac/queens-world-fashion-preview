@@ -47,16 +47,55 @@
     return { haljine: "Haljine", kompleti: "Kompleti", ostalo: "Posebni modeli" }[shopProductKind(product)];
   }
 
+  function shopProductCaption(product) {
+    const post = QW.getPosts().find((item) => String(item.sku) === String(product.sku));
+    return String(product.caption || post?.caption || post?.excerpt || "").trim();
+  }
+
+  function shopProductDescription(product) {
+    const manualDescription = String(product.description || "").trim();
+    if (manualDescription && !/^Preuzeto sa Instagram objave/i.test(manualDescription)) {
+      return QW.truncate(manualDescription, 135);
+    }
+
+    const lines = shopProductCaption(product)
+      .split(/\r?\n|\s+•\s+/)
+      .slice(1)
+      .map((line) => line.replace(/\/\/\s*[\d.]+(?:\s*RSD)?/gi, "").replace(/#\S+/g, "").replace(/@\S+/g, "").trim())
+      .filter((line) => line && !/^(?:xs|s)\s*[-–]\s*(?:xxl|3xl)$/i.test(line));
+
+    return QW.truncate(
+      lines.slice(0, 2).join(" ") || "Ručno izrađen model iz naše radionice, uz mogućnost dogovora oko detalja.",
+      135
+    );
+  }
+
+  function shopProductPriceLabel(product) {
+    if (QW.parsePrice(product.price) !== null) return QW.productPriceLabel(product);
+
+    const prices = [...shopProductCaption(product).matchAll(/\/\/\s*([\d][\d.]*)/g)]
+      .map((match) => QW.parsePrice(match[1]))
+      .filter((value) => value !== null && value >= 100);
+    const uniquePrices = [...new Set(prices)];
+    if (!uniquePrices.length) return QW.productPriceLabel(product);
+
+    const lowestPrice = Math.min(...uniquePrices);
+    return `${uniquePrices.length > 1 ? "od " : ""}${new Intl.NumberFormat("sr-RS").format(lowestPrice)} RSD`;
+  }
+
   function renderShopFeatureCard(product, index) {
     return `
       <article class="shop-feature-card" data-feature-product="${QW.escapeHtml(product.id)}" style="--feature-index:${index}">
         <a href="${productHref(product)}" class="shop-feature-link" aria-label="Pogledaj ${QW.escapeHtml(product.name)}">
-          <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" loading="${index ? "lazy" : "eager"}" decoding="async">
-          <span class="shop-feature-number" aria-hidden="true">0${index + 1}</span>
+          <span class="shop-feature-media">
+            <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" loading="${index ? "lazy" : "eager"}" decoding="async">
+            <span class="shop-feature-number" aria-hidden="true">0${index + 1}</span>
+          </span>
           <div class="shop-feature-copy">
-            <p>${QW.escapeHtml(shopProductKindLabel(product))}</p>
+            <p class="shop-feature-category">${QW.escapeHtml(shopProductKindLabel(product))}</p>
             <h3 class="font-serif">${QW.escapeHtml(product.name)}</h3>
-            <span>${QW.escapeHtml(QW.productPriceLabel(product))} <b aria-hidden="true">→</b></span>
+            <p class="shop-feature-description">${QW.escapeHtml(shopProductDescription(product))}</p>
+            <span class="shop-feature-meta"><strong>${QW.escapeHtml(shopProductPriceLabel(product))}</strong><b>Pogledaj model</b></span>
           </div>
         </a>
       </article>
@@ -74,8 +113,9 @@
         <div class="shop-product-info">
           <p class="mini-label">${QW.escapeHtml(shopProductKindLabel(product))}</p>
           <h3 class="font-serif"><a href="${productHref(product)}">${QW.escapeHtml(product.name)}</a></h3>
+          <p class="shop-product-description">${QW.escapeHtml(shopProductDescription(product))}</p>
           <div class="shop-product-footer">
-            <span class="shop-product-price">${QW.escapeHtml(QW.productPriceLabel(product))}</span>
+            <span class="shop-product-price">${QW.escapeHtml(shopProductPriceLabel(product))}</span>
             <button type="button" class="shop-quick-add" data-add-product="${QW.escapeHtml(product.id)}" aria-label="Dodaj ${QW.escapeHtml(product.name)} u korpu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 10.4A2 2 0 0 0 9.15 16H18a2 2 0 0 0 1.95-1.57L21 8H7"/><path d="M12 10v4m-2-2h4"/></svg>
               <span>Dodaj</span>
