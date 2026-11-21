@@ -82,12 +82,99 @@
     return `${uniquePrices.length > 1 ? "od " : ""}${new Intl.NumberFormat("sr-RS").format(lowestPrice)} RSD`;
   }
 
+  function productMediaData(product) {
+    const image = String(product.image || "").trim();
+    return {
+      image,
+      image2: String(product.image2 || product.secondaryImage || image).trim() || image,
+      video: String(product.video || product.videoUrl || "").trim(),
+    };
+  }
+
+  function renderProductMedia(product, options = {}) {
+    const media = productMediaData(product);
+    const variant = options.variant ? ` product-media-stage--${options.variant}` : "";
+    const loading = options.loading === "eager" ? "eager" : "lazy";
+    const focusable = options.focusable ? ' tabindex="0"' : "";
+
+    return `
+      <span class="product-media-stage${variant}" data-product-media${focusable}>
+        <img src="${QW.escapeHtml(media.image)}" alt="${QW.escapeHtml(product.name)}" loading="${loading}" decoding="async" class="product-media-frame frame-img is-active" data-product-frame="0">
+        <img src="${QW.escapeHtml(media.image2)}" alt="" aria-hidden="true" loading="lazy" decoding="async" class="product-media-frame frame-img" data-product-frame="1">
+        ${
+          media.video
+            ? `<video class="product-media-video" data-product-video muted loop playsinline preload="metadata" poster="${QW.escapeHtml(media.image)}" aria-hidden="true"><source src="${QW.escapeHtml(media.video)}"></video><span class="product-media-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>`
+            : ""
+        }
+        <span class="product-media-dots" aria-hidden="true"><i class="is-active" data-product-dot="0"></i><i data-product-dot="1"></i></span>
+      </span>
+    `;
+  }
+
+  function initProductMedia(root = document) {
+    root.querySelectorAll("[data-product-media]:not([data-product-media-ready])").forEach((media) => {
+      media.setAttribute("data-product-media-ready", "true");
+      const frames = [...media.querySelectorAll("[data-product-frame]")];
+      const dots = [...media.querySelectorAll("[data-product-dot]")];
+      const video = media.querySelector("[data-product-video]");
+      const hoverTarget = media.closest("a") || media;
+      let activeIndex = 0;
+      let wantsVideo = false;
+
+      const showFrame = (index) => {
+        activeIndex = index % frames.length;
+        frames.forEach((frame, frameIndex) => frame.classList.toggle("is-active", frameIndex === activeIndex));
+        dots.forEach((dot, dotIndex) => dot.classList.toggle("is-active", dotIndex === activeIndex));
+      };
+
+      const timer = window.setInterval(() => {
+        if (!media.isConnected) {
+          window.clearInterval(timer);
+          return;
+        }
+        if (!media.classList.contains("is-video-playing")) showFrame(activeIndex + 1);
+      }, 3600);
+
+      const startPreview = () => {
+        if (!video) {
+          media.classList.add("is-photo-preview");
+          return;
+        }
+        wantsVideo = true;
+        video.currentTime = 0;
+        const playAttempt = video.play();
+        if (playAttempt) {
+          playAttempt
+            .then(() => {
+              if (wantsVideo) media.classList.add("is-video-playing");
+              else video.pause();
+            })
+            .catch(() => media.classList.remove("is-video-playing"));
+        }
+      };
+
+      const stopPreview = () => {
+        wantsVideo = false;
+        media.classList.remove("is-video-playing", "is-photo-preview");
+        if (video) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      };
+
+      hoverTarget.addEventListener("mouseenter", startPreview);
+      hoverTarget.addEventListener("mouseleave", stopPreview);
+      hoverTarget.addEventListener("focus", startPreview);
+      hoverTarget.addEventListener("blur", stopPreview);
+    });
+  }
+
   function renderShopFeatureCard(product, index) {
     return `
       <article class="shop-feature-card" data-feature-product="${QW.escapeHtml(product.id)}" style="--feature-index:${index}">
         <a href="${productHref(product)}" class="shop-feature-link" aria-label="Pogledaj ${QW.escapeHtml(product.name)}">
           <span class="shop-feature-media">
-            <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" loading="${index ? "lazy" : "eager"}" decoding="async">
+            ${renderProductMedia(product, { loading: index ? "lazy" : "eager", variant: "feature" })}
             <span class="shop-feature-number" aria-hidden="true">0${index + 1}</span>
           </span>
           <div class="shop-feature-copy">
@@ -105,7 +192,7 @@
     return `
       <article class="shop-product-card" data-shop-card data-shop-product="${QW.escapeHtml(product.id)}" style="--card-index:${index % 6}">
         <a href="${productHref(product)}" class="shop-product-media" aria-label="Pogledaj ${QW.escapeHtml(product.name)}">
-          <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" loading="lazy" decoding="async" class="frame-img">
+          ${renderProductMedia(product, { variant: "shop" })}
           <span class="shop-product-badge">Ručno rađeno</span>
           <span class="shop-product-view">Pogledaj model</span>
         </a>
@@ -160,7 +247,7 @@
     return `
       <article class="product-card surface-card">
         <a href="${productHref(product)}" class="card-link" aria-label="${QW.escapeHtml(product.name)}">
-          <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" loading="lazy" decoding="async" class="frame-img">
+          ${renderProductMedia(product, { variant: "card" })}
         </a>
         <div class="flex flex-1 flex-col p-5">
           <div class="flex items-start justify-between gap-3">
@@ -362,6 +449,7 @@
     const cards = products.map(renderShopProductCard);
     if (cards.length > 6) cards.splice(6, 0, renderShopStory(QW.getSettings()));
     grid.innerHTML = cards.join("");
+    initProductMedia(grid);
   }
 
   function renderShopPage() {
@@ -423,6 +511,7 @@
     `;
 
     renderShopGrid();
+    initProductMedia(target);
 
     document.querySelector("[data-shop-sort]")?.addEventListener("change", (event) => {
       shopState.sort = event.target.value || "default";
@@ -471,14 +560,14 @@
     );
 
     target.innerHTML = `
-      <section class="mb-8">
+      <section class="product-detail-nav">
         <a href="prodavnica.html" class="text-sm font-medium text-[color:var(--muted)] hover:text-[color:var(--gold-deep)]">← Nazad u prodavnicu</a>
       </section>
-      <section class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-        <figure class="surface-card overflow-hidden rounded-[2rem]">
-          <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" decoding="async" class="frame-img aspect-[4/5] w-full object-cover">
+      <section class="product-detail-layout">
+        <figure class="product-detail-figure surface-card">
+          ${renderProductMedia(product, { loading: "eager", variant: "detail", focusable: true })}
         </figure>
-        <div class="surface-card rounded-[2rem] p-6 sm:p-8">
+        <div class="product-detail-copy surface-card">
           <p class="mini-label mb-3">${QW.escapeHtml(product.category || "proizvod")}${product.sku ? ` • ${QW.escapeHtml(product.sku)}` : ""}</p>
           <h1 class="section-title font-serif">${QW.escapeHtml(product.name)}</h1>
           <p class="mt-4"><span class="meta-chip text-base">${QW.escapeHtml(QW.productPriceLabel(product))}</span></p>
@@ -527,6 +616,8 @@
           : ""
       }
     `;
+
+    initProductMedia(target);
 
     document.querySelector("[data-size-group]")?.addEventListener("click", (event) => {
       const chip = event.target.closest("[data-size]");
