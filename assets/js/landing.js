@@ -16,7 +16,15 @@
     localStorage.setItem("qw_preview_landing_revision", revision);
   }
 
-  function header() {
+  // One brand header for every page; product details belong to the shop tab.
+  function header(pageKey) {
+    const activePage = pageKey === "product" ? "shop" : pageKey === "preview" ? "admin" : pageKey;
+    const navigation = [
+      { key: "home", href: "index.html", label: "Početna" },
+      { key: "collection", href: "kolekcija.html", label: "Kolekcija" },
+      { key: "shop", href: "prodavnica.html", label: "Prodavnica" },
+      { key: "instagram", href: "blog.html", label: "Instagram" },
+    ].map((item) => `<a href="${item.href}" class="nav-link${item.key === activePage ? " is-active" : ""}"${item.key === activePage ? ' aria-current="page"' : ""}>${item.label}</a>`).join("");
     return `
       <header class="landing-header">
         <div class="landing-brand-row">
@@ -31,20 +39,21 @@
         </div>
         <div class="landing-nav-row">
           <nav class="landing-nav" aria-label="Glavna navigacija">
-            <a href="index.html" class="nav-link is-active" aria-current="page">Početna</a>
-            <a href="prodavnica.html" class="nav-link">Prodavnica</a>
+            ${navigation}
           </nav>
-          <a class="landing-instagram" href="https://www.instagram.com/qw__fashion/" target="_blank" rel="noreferrer">@qw__fashion</a>
+          <a class="landing-instagram" data-brand-instagram href="https://www.instagram.com/qw__fashion/" target="_blank" rel="noreferrer">@qw__fashion</a>
           <div class="landing-controls">
             <button type="button" class="icon-button" data-theme-toggle aria-label="Promeni temu">
               <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
               <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
             </button>
-            <a href="admin.html" class="landing-login" aria-label="Prijava u admin panel">Login</a>
+            <a href="admin.html" class="landing-login" aria-label="Prijava u admin panel"${activePage === "admin" ? ' aria-current="page"' : ""}>Login</a>
+            ${pageKey === "admin" ? "" : `
             <button type="button" class="icon-button landing-cart" data-cart-toggle aria-label="Otvori korpu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.2 10.4A2 2 0 0 0 9.15 16H18a2 2 0 0 0 1.95-1.57L21 8H7"/><circle cx="10" cy="20" r="1.2"/><circle cx="18" cy="20" r="1.2"/></svg>
               <span data-cart-count class="landing-cart-count">0</span>
             </button>
+            `}
           </div>
         </div>
       </header>`;
@@ -58,17 +67,28 @@
         <img class="atelier-footer-logo" src="images/queens-world-logo-poster.png" alt="" width="1080" height="1080" loading="lazy" aria-hidden="true">
         <div class="atelier-footer-content">
           <div class="atelier-footer-left">
-            <p>Pažljivo birani ručno rađeni modeli za svakodnevnu eleganciju.</p>
-            <strong class="font-serif">Izradjujemo za vas u Zemunu</strong>
+            <p data-brand-footer-note>Pažljivo birani ručno rađeni modeli za svakodnevnu eleganciju.</p>
+            <strong class="font-serif" data-brand-made-in>Izradjujemo za vas u Zemunu</strong>
           </div>
           <div class="atelier-footer-right">
             <p>Sve modele možete videti i na Instagramu</p>
             <strong class="font-serif">Pratite nas</strong>
-            <a href="https://www.instagram.com/qw__fashion/" target="_blank" rel="noreferrer">@qw__fashion</a>
+            <a data-brand-instagram href="https://www.instagram.com/qw__fashion/" target="_blank" rel="noreferrer">@qw__fashion</a>
           </div>
         </div>
         <p class="atelier-footer-copyright">© 2026 Kaleya Ventures LLC</p>
       </footer>`;
+  }
+
+  function updateBrandSettings(settings) {
+    document.querySelectorAll("[data-brand-instagram]").forEach((link) => {
+      link.textContent = settings.instagramHandle;
+      link.href = settings.instagramUrl;
+    });
+    const note = document.querySelector("[data-brand-footer-note]");
+    const madeIn = document.querySelector("[data-brand-made-in]");
+    if (note) note.textContent = settings.footerNote;
+    if (madeIn) madeIn.textContent = settings.madeInText;
   }
 
   function bindLogo() {
@@ -172,5 +192,5 @@
     update();
   }
 
-  window.QW_LANDING = { migrate, header, footer, bindLogo, bindGallery };
+  window.QW_LANDING = { migrate, header, footer, updateBrandSettings, bindLogo, bindGallery };
 })();

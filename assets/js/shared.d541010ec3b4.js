@@ -238,7 +238,15 @@
   }
 
   function getSettings() {
-    return getStored(STORAGE.settings, clone(window.QW_DEFAULTS.settings));
+    const settings = getStored(STORAGE.settings, clone(window.QW_DEFAULTS.settings));
+    // Upgrade only the old boilerplate; retain any custom admin wording.
+    if (["Izradjeno u Zemunu", "Izradjeno u nas Zemunu", "Izradjeno za nas u Zemunu"].includes(settings.madeInText)) {
+      settings.madeInText = "Izradjujemo za vas u Zemunu";
+    }
+    if (settings.footerNote === "Pažljivo birani modeli za svakodnevnu eleganciju.") {
+      settings.footerNote = "Pažljivo birani ručno rađeni modeli za svakodnevnu eleganciju.";
+    }
+    return settings;
   }
 
   function getHeroSlides() {
@@ -268,7 +276,9 @@
   }
 
   function setSettings(value) {
-    return setStored(STORAGE.settings, value);
+    const saved = setStored(STORAGE.settings, value);
+    window.QW_LANDING.updateBrandSettings(getSettings());
+    return saved;
   }
 
   function setHeroSlides(value) {
@@ -323,10 +333,6 @@
     let stored;
     try { stored = localStorage.getItem(STORAGE.theme); } catch (error) { /* Default to day without storage. */ }
     document.documentElement.setAttribute("data-theme", stored === "night" ? "night" : "day");
-  }
-
-  function toggleMobileNav() {
-    document.querySelector("[data-mobile-nav]")?.classList.toggle("is-open");
   }
 
   function groupCartItems(items) {
@@ -568,110 +574,21 @@
   }
 
   function createLayout(pageKey) {
-    const settings = getSettings();
-    const navItems = [
-      { key: "home", href: "index.html", label: "Početna" },
-      { key: "collection", href: "kolekcija.html", label: "Kolekcija" },
-      { key: "shop", href: "prodavnica.html", label: "Prodavnica" },
-      { key: "instagram", href: "blog.html", label: "Instagram" },
-    ];
-
     const headerTarget = document.querySelector("[data-site-header]");
     const footerTarget = document.querySelector("[data-site-footer]");
     if (!headerTarget || !footerTarget) {
       return;
     }
+    // Admin content re-renders often; keep its logo and controls mounted once.
+    if (headerTarget.dataset.layoutPage === pageKey) {
+      window.QW_LANDING.updateBrandSettings(getSettings());
+      return;
+    }
 
-    const headerNav = navItems
-      .map(
-        (item) => `
-          <a href="${item.href}" class="nav-link ${item.key === pageKey ? "is-active" : ""}">${item.label}</a>
-        `
-      )
-      .join("");
-
-    const mobileNav = navItems
-      .map(
-        (item) => `
-          <a href="${item.href}" class="nav-link ${item.key === pageKey ? "is-active" : ""}">${item.label}</a>
-        `
-      )
-      .join("") + `
-          <a href="admin.html" class="nav-link ${pageKey === "admin" ? "is-active" : ""}">Admin</a>
-        `;
-
-    headerTarget.innerHTML = pageKey === "home" && window.QW_LANDING ? window.QW_LANDING.header() : `
-      <header class="site-header">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="header-inner flex min-h-[5.2rem] items-center justify-between gap-5 py-3">
-            <a href="index.html" class="brand-lockup">
-              <img src="images/brand-crown.jpg" alt="Queen's World Fashion logo" class="brand-icon">
-              <img src="images/brand-wordmark.png" alt="Queen's World Fashion" class="brand-wordmark">
-            </a>
-            <nav class="hidden items-center gap-8 md:flex">
-              ${headerNav}
-            </nav>
-            <div class="flex items-center gap-3">
-              <a href="${escapeHtml(settings.instagramUrl)}" target="_blank" rel="noreferrer" class="hidden text-sm text-[color:var(--muted)] sm:inline-flex">${escapeHtml(settings.instagramHandle)}</a>
-              <button type="button" class="icon-button" data-theme-toggle aria-label="Promeni temu">
-                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
-                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-              </button>
-              <a href="admin.html" class="hidden rounded-full border border-[color:var(--line)] bg-[color:var(--surface)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--ink)] transition hover:-translate-y-[1px] sm:inline-flex">Admin</a>
-              <button type="button" class="icon-button md:hidden" data-menu-toggle aria-label="Otvori meni">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-              </button>
-              ${
-                pageKey === "admin"
-                  ? ""
-                  : `
-                    <button type="button" class="relative rounded-full border border-[color:var(--line)] bg-[color:var(--surface)] p-3 shadow-sm transition hover:-translate-y-[1px]" data-cart-toggle aria-label="Otvori korpu">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path d="M3 4h2l2.2 10.4A2 2 0 0 0 9.15 16H18a2 2 0 0 0 1.95-1.57L21 8H7" />
-                        <circle cx="10" cy="20" r="1.2" />
-                        <circle cx="18" cy="20" r="1.2" />
-                      </svg>
-                      <span data-cart-count class="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-[color:var(--ink)] text-[11px] text-[color:var(--on-ink)]">0</span>
-                    </button>
-                  `
-              }
-            </div>
-          </div>
-          <nav data-mobile-nav class="mobile-nav md:hidden">
-            ${mobileNav}
-          </nav>
-        </div>
-      </header>
-    `;
-
-    footerTarget.innerHTML = pageKey === "home" && window.QW_LANDING ? window.QW_LANDING.footer() : `
-      <footer class="site-footer mt-24">
-        <div class="mx-auto grid max-w-7xl gap-10 px-4 py-12 text-sm sm:px-6 lg:grid-cols-3 lg:px-8">
-          <div>
-            <div class="mb-4 flex items-center gap-3">
-              <img src="images/brand-crown.jpg" alt="Logo" class="h-12 w-12 rounded-full object-cover">
-              <img src="images/brand-wordmark.png" alt="Queen's World Fashion" class="w-44">
-            </div>
-            <p class="text-[color:var(--muted)]">${escapeHtml(settings.footerNote)}</p>
-            <p class="mt-2 font-medium">${escapeHtml(settings.madeInText)}</p>
-          </div>
-          <div>
-            <p class="mini-label mb-3">Prati nas</p>
-            <a href="${escapeHtml(settings.instagramUrl)}" target="_blank" rel="noreferrer" class="text-base font-medium hover:text-[color:var(--gold-deep)]">${escapeHtml(settings.instagramHandle)}</a>
-            <p class="mt-2 text-[color:var(--muted)]">Instagram objave i proizvodi mogu da se osvežavaju iz admin panela.</p>
-          </div>
-          <div>
-            <p class="mini-label mb-3">Kontakt i dostava</p>
-            <p class="text-[color:var(--muted)]">${escapeHtml(settings.location)}</p>
-            <p class="mt-2">${escapeHtml(settings.shippingEta)}</p>
-            <p class="mt-1">${escapeHtml(settings.shippingBadgeLabel)}: ${escapeHtml(settings.shippingPrice)}</p>
-          </div>
-        </div>
-        <div class="border-t border-[color:var(--line)] px-4 py-4 text-center text-xs text-[color:var(--muted)]">
-          © ${new Date().getFullYear()} ${escapeHtml(settings.storeName)}
-        </div>
-      </footer>
-    `;
+    headerTarget.innerHTML = window.QW_LANDING.header(pageKey);
+    footerTarget.innerHTML = window.QW_LANDING.footer();
+    headerTarget.dataset.layoutPage = pageKey;
+    window.QW_LANDING.updateBrandSettings(getSettings());
 
     if (pageKey !== "admin") {
       ensureGlobalPanels();
@@ -680,13 +597,7 @@
     }
 
     document.querySelector("[data-theme-toggle]")?.addEventListener("click", toggleTheme);
-    if (pageKey === "home") window.QW_LANDING?.bindLogo();
-    document.querySelector("[data-menu-toggle]")?.addEventListener("click", toggleMobileNav);
-    document.querySelector("[data-mobile-nav]")?.addEventListener("click", (event) => {
-      if (event.target.closest("a")) {
-        toggleMobileNav();
-      }
-    });
+    window.QW_LANDING.bindLogo();
   }
 
   function ensureGlobalPanels() {

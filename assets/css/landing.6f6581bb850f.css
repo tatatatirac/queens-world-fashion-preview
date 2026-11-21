@@ -1,4 +1,4 @@
-/* Landing-only layout; the shop and admin retain their existing styles. */
+/* Shared brand header/footer; hero rules remain scoped to the landing page. */
 .landing-header { padding: 0.4rem 1rem 0; }
 .landing-brand-row { position: relative; width: fit-content; margin: 0 auto; }
 .landing-brand { position: relative; display: block; width: 250px; height: 220px; overflow: hidden; }
@@ -10,11 +10,12 @@
 .landing-brand:has(.is-playing) .landing-logo-poster { visibility: hidden; }
 .logo-motion-toggle { position: absolute; bottom: 0.75rem; right: -0.5rem; width: 1.8rem; height: 1.8rem; border-radius: 50%; border: 1px solid var(--line); color: var(--muted); background: var(--surface); font-size: 0.75rem; }
 .logo-motion-toggle[hidden] { display: none; }
-.landing-nav-row { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1.9rem; width: fit-content; margin: 0 auto; padding: 0.85rem 1.5rem; background: var(--header-bg); }
-.landing-nav { display: flex; align-items: center; gap: 2rem; }
+.landing-nav-row { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1.9rem; width: fit-content; max-width: 100%; margin: 0 auto; padding: 0.85rem 1.5rem; background: var(--header-bg); }
+.landing-nav { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 2rem; }
 .landing-instagram { color: var(--muted); font-size: 0.95rem; }
 .landing-controls { display: flex; align-items: center; gap: 0.8rem; }
 .landing-login { border: 1px solid var(--line); border-radius: 99px; padding: 0.7rem 1.6rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; background: var(--surface); }
+.landing-login[aria-current="page"] { border-color: var(--gold); color: var(--gold-deep); }
 .landing-cart { position: relative; }
 .landing-cart-count { position: absolute; right: -4px; top: -4px; min-width: 20px; height: 20px; border-radius: 99px; background: var(--ink); color: var(--on-ink); font-size: 11px; display: grid; place-items: center; }
 .landing-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2rem; align-items: stretch; }
@@ -60,8 +61,9 @@ html[data-theme="night"] .atelier-footer-logo { mix-blend-mode: screen; filter: 
   .landing-brand { width: 210px; height: 180px; }
   .landing-logo-poster, .landing-logo-video, .landing-logo-gif { width: 210px; height: 210px; }
   .landing-nav-row { width: 100%; gap: .85rem 1rem; padding: .8rem .3rem; }
-  .landing-nav { gap: 1.5rem; }
-  .landing-nav .nav-link { font-size: .7rem; letter-spacing: .16em; }
+  .landing-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: .15rem .75rem; }
+  .landing-nav .nav-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .6rem .25rem; font-size: .7rem; letter-spacing: .16em; }
+  .landing-nav .nav-link::after { bottom: .2rem; }
   .landing-instagram { font-size: .8rem; }
   .landing-controls { gap: 1rem; }
   .landing-login { padding: .6rem 1.4rem; }
