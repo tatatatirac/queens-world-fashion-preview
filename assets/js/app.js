@@ -36,6 +36,69 @@
     return `proizvod.html?id=${encodeURIComponent(product.id)}`;
   }
 
+  function shopProductKind(product) {
+    const text = `${product.name || ""} ${product.description || ""}`.toLowerCase();
+    if (/haljin|aya|princes/.test(text)) return "haljine";
+    if (/komplet|kombinacij|sport/.test(text)) return "kompleti";
+    return "ostalo";
+  }
+
+  function shopProductKindLabel(product) {
+    return { haljine: "Haljine", kompleti: "Kompleti", ostalo: "Posebni modeli" }[shopProductKind(product)];
+  }
+
+  function renderShopFeatureCard(product, index) {
+    return `
+      <article class="shop-feature-card" data-feature-product="${QW.escapeHtml(product.id)}" style="--feature-index:${index}">
+        <a href="${productHref(product)}" class="shop-feature-link" aria-label="Pogledaj ${QW.escapeHtml(product.name)}">
+          <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" loading="${index ? "lazy" : "eager"}" decoding="async">
+          <span class="shop-feature-number" aria-hidden="true">0${index + 1}</span>
+          <div class="shop-feature-copy">
+            <p>${QW.escapeHtml(shopProductKindLabel(product))}</p>
+            <h3 class="font-serif">${QW.escapeHtml(product.name)}</h3>
+            <span>${QW.escapeHtml(QW.productPriceLabel(product))} <b aria-hidden="true">→</b></span>
+          </div>
+        </a>
+      </article>
+    `;
+  }
+
+  function renderShopProductCard(product, index) {
+    return `
+      <article class="shop-product-card" data-shop-card data-shop-product="${QW.escapeHtml(product.id)}" style="--card-index:${index % 6}">
+        <a href="${productHref(product)}" class="shop-product-media" aria-label="Pogledaj ${QW.escapeHtml(product.name)}">
+          <img src="${QW.escapeHtml(product.image)}" alt="${QW.escapeHtml(product.name)}" loading="lazy" decoding="async" class="frame-img">
+          <span class="shop-product-badge">Ručno rađeno</span>
+          <span class="shop-product-view">Pogledaj model</span>
+        </a>
+        <div class="shop-product-info">
+          <p class="mini-label">${QW.escapeHtml(shopProductKindLabel(product))}</p>
+          <h3 class="font-serif"><a href="${productHref(product)}">${QW.escapeHtml(product.name)}</a></h3>
+          <div class="shop-product-footer">
+            <span class="shop-product-price">${QW.escapeHtml(QW.productPriceLabel(product))}</span>
+            <button type="button" class="shop-quick-add" data-add-product="${QW.escapeHtml(product.id)}" aria-label="Dodaj ${QW.escapeHtml(product.name)} u korpu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2.2 10.4A2 2 0 0 0 9.15 16H18a2 2 0 0 0 1.95-1.57L21 8H7"/><path d="M12 10v4m-2-2h4"/></svg>
+              <span>Dodaj</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderShopStory(settings) {
+    return `
+      <aside class="shop-story-callout">
+        <div>
+          <p class="mini-label">Po vašoj meri</p>
+          <h3 class="font-serif">Ne mora sve da bude konfekcijski.</h3>
+        </div>
+        <p>Želite malu korekciju dužine ili kroja? Pošaljite nam svoje mere i dogovorićemo detalje.</p>
+        <a href="${QW.escapeHtml(settings.instagramUrl)}" target="_blank" rel="noreferrer">Pišite nam <span aria-hidden="true">→</span></a>
+      </aside>
+    `;
+  }
+
   function renderHeroTrack(slides) {
     const duplicated = [...slides, ...slides];
     return duplicated
@@ -204,15 +267,20 @@
   function renderShopGrid() {
     const grid = document.querySelector("[data-shop-grid]");
     const countNode = document.querySelector("[data-shop-count]");
+    const titleNode = document.querySelector("[data-shop-results-title]");
+    const featuredNode = document.querySelector("[data-shop-featured]");
     if (!grid) {
       return;
     }
 
-    let products = QW.getProducts();
-    const total = products.length;
+    const allProducts = QW.getProducts();
+    const total = allProducts.length;
+    const featuredIds = new Set(allProducts.slice(0, 3).map((product) => String(product.id)));
+    const isExploring = Boolean(shopState.query || shopState.category !== "all" || shopState.sort !== "default");
+    let products = [...allProducts];
 
     if (shopState.category !== "all") {
-      products = products.filter((item) => (item.category || "ostalo") === shopState.category);
+      products = products.filter((item) => shopProductKind(item) === shopState.category);
     }
 
     if (shopState.query) {
@@ -234,41 +302,97 @@
       );
     }
 
-    if (countNode) {
-      countNode.textContent = `${products.length} od ${total} artikala`;
+    if (shopState.sort === "name-asc") {
+      products.sort((a, b) => String(a.name).localeCompare(String(b.name), "sr"));
     }
 
-    grid.innerHTML = products.length
-      ? products.map(renderProductCard).join("")
-      : '<div class="empty-state md:col-span-2 xl:col-span-3">Nema artikala za zadatu pretragu. Probaj drugu reč ili kategoriju.</div>';
+    if (!isExploring) {
+      products = products.filter((product) => !featuredIds.has(String(product.id)));
+    }
+
+    if (countNode) {
+      countNode.textContent = isExploring ? `${products.length} ${products.length === 1 ? "rezultat" : "rezultata"}` : `${total} modela`;
+    }
+
+    if (titleNode) titleNode.textContent = isExploring ? "Rezultati pretrage" : "Još modela za vas";
+    if (featuredNode) featuredNode.hidden = isExploring;
+    document.querySelectorAll("[data-shop-kind]").forEach((button) => {
+      const isActive = button.getAttribute("data-shop-kind") === shopState.category;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+
+    if (!products.length) {
+      grid.innerHTML = '<div class="shop-empty"><p class="font-serif">Nismo pronašli takav model.</p><span>Probajte drugu reč ili pogledajte sve modele.</span><button type="button" data-clear-shop>Prikaži sve</button></div>';
+      return;
+    }
+
+    const cards = products.map(renderShopProductCard);
+    if (cards.length > 6) cards.splice(6, 0, renderShopStory(QW.getSettings()));
+    grid.innerHTML = cards.join("");
   }
 
   function renderShopPage() {
     const products = QW.getProducts();
     const settings = QW.getSettings();
-    const categories = [...new Set(products.map((item) => item.category || "ostalo"))].sort();
+    const kinds = [
+      { key: "all", label: "Svi modeli", count: products.length },
+      { key: "haljine", label: "Haljine", count: products.filter((item) => shopProductKind(item) === "haljine").length },
+      { key: "kompleti", label: "Kompleti", count: products.filter((item) => shopProductKind(item) === "kompleti").length },
+      { key: "ostalo", label: "Ostalo", count: products.filter((item) => shopProductKind(item) === "ostalo").length },
+    ].filter((kind) => kind.key === "all" || kind.count);
+    const featured = products.slice(0, 3);
     const target = document.querySelector("[data-page-root]");
 
     target.innerHTML = `
-      <section class="mb-8">
-        <p class="mini-label mb-3">Prodavnica</p>
-        <h1 class="section-title font-serif">Svi proizvodi za poručivanje</h1>
-        <p class="section-subtitle mt-4 max-w-3xl">${QW.escapeHtml(settings.shopNote)}</p>
+      <section class="shop-hero">
+        <div class="shop-hero-copy">
+          <p class="mini-label">Queen's World izbor</p>
+          <h1 class="font-serif">Modeli koje ćete želeti da nosite ponovo.</h1>
+          <p>Ženstveni krojevi iz naše radionice, ručno izrađeni sa pažnjom i prilagodljivi vašim merama.</p>
+          <a href="#svi-modeli" class="action-button action-button-primary">Istražite modele</a>
+        </div>
+        <div class="shop-promises" aria-label="Prednosti Queen's World modela">
+          <div><span>01</span><strong>Ručno izrađeno</strong><p>Svaki model prolazi kroz ruke naših krojačica.</p></div>
+          <div><span>02</span><strong>Korekcije po meri</strong><p>Dogovaramo manje izmene kroja i dužine.</p></div>
+          <div><span>03</span><strong>${QW.escapeHtml(settings.shippingEta)}</strong><p>Brzo do modela koji ste izabrali.</p></div>
+        </div>
       </section>
-      <section class="filter-bar mb-8">
-        <input type="search" class="field-input" placeholder="Traži artikal..." aria-label="Pretraga artikala" data-shop-query>
-        <select class="field-select" aria-label="Kategorija" data-shop-category>
-          <option value="all">Sve kategorije</option>
-          ${categories.map((category) => `<option value="${QW.escapeHtml(category)}">${QW.escapeHtml(category)}</option>`).join("")}
-        </select>
-        <select class="field-select" aria-label="Sortiranje" data-shop-sort>
-          <option value="default">Najnovije prvo</option>
+
+      <section class="shop-featured" data-shop-featured>
+        <div class="shop-section-heading">
+          <div><p class="mini-label">Izdvojeno za vas</p><h2 class="font-serif">Počnite od ovih modela</h2></div>
+          <p>Tri različita raspoloženja, ista pažnja u svakom detalju.</p>
+        </div>
+        <div class="shop-feature-grid">${featured.map(renderShopFeatureCard).join("")}</div>
+      </section>
+
+      <section class="shop-filter-shell" aria-label="Pretraga i filteri proizvoda">
+        <div class="shop-kind-list" aria-label="Vrsta modela">
+          ${kinds.map((kind) => `<button type="button" data-shop-kind="${kind.key}" aria-pressed="${kind.key === "all"}">${kind.label}<span>${kind.count}</span></button>`).join("")}
+        </div>
+        <div class="shop-toolbar-row">
+          <label class="shop-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+            <span class="sr-only">Pretražite modele</span>
+            <input type="search" placeholder="Pretražite modele..." data-shop-query>
+          </label>
+          <label class="shop-sort">
+            <span>Sortiraj</span>
+            <select aria-label="Sortiranje" data-shop-sort>
+              <option value="default">Naš izbor</option>
+              <option value="name-asc">Naziv A–Z</option>
           <option value="price-asc">Cena: niža → viša</option>
           <option value="price-desc">Cena: viša → niža</option>
         </select>
-        <span class="mini-label" data-shop-count></span>
+          </label>
+        </div>
       </section>
-      <section class="grid gap-6 md:grid-cols-2 xl:grid-cols-3" data-shop-grid></section>
+
+      <section class="shop-results" id="svi-modeli">
+        <div class="shop-results-heading"><h2 class="font-serif" data-shop-results-title>Još modela za vas</h2><span data-shop-count></span></div>
+        <div class="shop-product-grid" data-shop-grid></div>
+      </section>
     `;
 
     renderShopGrid();
@@ -277,13 +401,24 @@
       shopState.query = String(event.target.value || "").trim();
       renderShopGrid();
     });
-    document.querySelector("[data-shop-category]")?.addEventListener("change", (event) => {
-      shopState.category = event.target.value || "all";
-      renderShopGrid();
-    });
     document.querySelector("[data-shop-sort]")?.addEventListener("change", (event) => {
       shopState.sort = event.target.value || "default";
       renderShopGrid();
+    });
+    target.addEventListener("click", (event) => {
+      const kind = event.target.closest("[data-shop-kind]");
+      if (kind) {
+        shopState.category = kind.getAttribute("data-shop-kind") || "all";
+        renderShopGrid();
+      }
+      if (event.target.closest("[data-clear-shop]")) {
+        shopState.query = "";
+        shopState.category = "all";
+        shopState.sort = "default";
+        document.querySelector("[data-shop-query]").value = "";
+        document.querySelector("[data-shop-sort]").value = "default";
+        renderShopGrid();
+      }
     });
   }
 
