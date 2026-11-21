@@ -21,9 +21,7 @@
     const activePage = pageKey === "product" ? "shop" : pageKey === "preview" ? "admin" : pageKey;
     const navigation = [
       { key: "home", href: "index.html", label: "Početna" },
-      { key: "collection", href: "kolekcija.html", label: "Kolekcija" },
       { key: "shop", href: "prodavnica.html", label: "Prodavnica" },
-      { key: "instagram", href: "blog.html", label: "Instagram" },
     ].map((item) => `<a href="${item.href}" class="nav-link${item.key === activePage ? " is-active" : ""}"${item.key === activePage ? ' aria-current="page"' : ""}>${item.label}</a>`).join("");
     return `
       <header class="landing-header">
