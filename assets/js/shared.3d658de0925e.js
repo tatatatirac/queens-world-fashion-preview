@@ -11,6 +11,7 @@
     sync: "qw_preview_ig_sync",
     adminSession: "qw_preview_admin_session",
     theme: "qw_preview_theme",
+    productMediaDemo: "qw_preview_product_media_demo_v1",
   };
 
 
@@ -173,7 +174,7 @@
         price: "",
         image: normalized.image,
         image2: normalized.image2 || normalized.image,
-        video: normalized.video || "",
+        video: normalized.video || (/srebrna\s+aya/i.test(normalized.title) ? "images/queens-world-rotating-logo.mp4" : ""),
         description: descriptionFromFeedItem(normalized),
         category: "instagram",
         sku: normalized.sku,
@@ -259,6 +260,30 @@
 
   function getProducts() {
     return getStored(STORAGE.products, buildProductsFromFeed(window.QW_DEFAULTS.instagramFeed));
+  }
+
+  function migrateProductMediaDemo() {
+    if (localStorage.getItem(STORAGE.productMediaDemo) === "1") {
+      return;
+    }
+
+    const products = getProducts();
+    let changed = false;
+    products.forEach((product) => {
+      if (!product.image2 && product.image) {
+        product.image2 = product.image;
+        changed = true;
+      }
+      if (/srebrna\s+aya/i.test(String(product.name || "")) && !product.video) {
+        product.video = "images/queens-world-rotating-logo.mp4";
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      setStored(STORAGE.products, products);
+    }
+    localStorage.setItem(STORAGE.productMediaDemo, "1");
   }
 
   function getModels() {
@@ -688,6 +713,7 @@
   }
 
   seedState(false);
+  migrateProductMediaDemo();
   if (document.body.dataset.page === "home") window.QW_LANDING?.migrate();
   initTheme();
 

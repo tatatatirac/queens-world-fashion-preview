@@ -169,6 +169,66 @@
     });
   }
 
+  function initShopRowWheel(root) {
+    if (!root || root.hasAttribute("data-shop-row-wheel-ready")) {
+      return;
+    }
+
+    root.setAttribute("data-shop-row-wheel-ready", "true");
+    let wheelLocked = false;
+
+    root.addEventListener(
+      "wheel",
+      (event) => {
+        if (
+          wheelLocked ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          Math.abs(event.deltaY) < 2 ||
+          !window.matchMedia("(hover: hover) and (pointer: fine)").matches
+        ) {
+          return;
+        }
+
+        const hoveredCard = event.target.closest("[data-feature-product], [data-shop-card]");
+        if (!hoveredCard) {
+          return;
+        }
+
+        const cards = [...root.querySelectorAll("[data-feature-product], [data-shop-card]")].filter((card) => {
+          const rect = card.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0;
+        });
+        const rows = [];
+        cards.forEach((card) => {
+          const top = Math.round(card.getBoundingClientRect().top + window.scrollY);
+          const row = rows.find((item) => Math.abs(item.top - top) <= 4);
+          if (row) row.cards.push(card);
+          else rows.push({ top, cards: [card] });
+        });
+        rows.sort((a, b) => a.top - b.top);
+
+        const currentIndex = rows.findIndex((row) => row.cards.includes(hoveredCard));
+        const targetIndex = currentIndex + Math.sign(event.deltaY);
+        if (currentIndex < 0 || targetIndex < 0 || targetIndex >= rows.length) {
+          return;
+        }
+
+        event.preventDefault();
+        wheelLocked = true;
+        rows[targetIndex].cards[0].scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          block: "center",
+          inline: "nearest",
+        });
+        window.setTimeout(() => {
+          wheelLocked = false;
+        }, 520);
+      },
+      { passive: false }
+    );
+  }
+
   function renderShopFeatureCard(product, index) {
     return `
       <article class="shop-feature-card" data-feature-product="${QW.escapeHtml(product.id)}" style="--feature-index:${index}">
@@ -512,6 +572,7 @@
 
     renderShopGrid();
     initProductMedia(target);
+    initShopRowWheel(target);
 
     document.querySelector("[data-shop-sort]")?.addEventListener("change", (event) => {
       shopState.sort = event.target.value || "default";
